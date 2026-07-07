@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KadeeLyrics • Hot Right Now</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      background: linear-gradient(135deg, #0a0a0a, #1a0033);
+      color: #fff;
+    }
+    header {
+      background: linear-gradient(135deg, #1db954, #ff00aa);
+      padding: 3rem 1rem;
+      text-align: center;
+    }
+    .container { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+    .search {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    input, button {
+      padding: 16px;
+      margin: 8px;
+      border-radius: 50px;
+      border: none;
+      font-size: 1.1rem;
+    }
+    input { background: #222; color: white; width: 320px; }
+    button { background: #1db954; color: black; font-weight: bold; cursor: pointer; }
+
+    .now-playing {
+      background: #111;
+      padding: 25px;
+      border-radius: 20px;
+      margin: 25px 0;
+      text-align: center;
+      display: none;
+    }
+    .artist-pic {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      border: 6px solid #1db954;
+      margin: 15px auto;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: #1f1f1f;
+      border-radius: 18px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .card:hover { transform: scale(1.08); }
+    .card img {
+      width: 100%;
+      height: 240px;
+      object-fit: cover;
+    }
+    .card-info {
+      padding: 12px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>KadeeLyrics</h1>
+    <p>Click any song picture to play • @kadeethe1</p>
+  </header>
+
+  <div class="container">
+    <!-- Search Bar -->
+    <div class="search">
+      <input type="text" id="song" placeholder="Song name">
+      <input type="text" id="artist" placeholder="Artist name">
+      <button onclick="searchAndPlay()">▶️ Play Song</button>
+    </div>
+
+    <!-- Now Playing -->
+    <div id="nowPlaying" class="now-playing">
+      <img id="artistPic" class="artist-pic" src="https://picsum.photos/id/64/600/600">
+      <h2 id="playingTitle"></h2>
+      <iframe id="player" width="100%" height="160" frameborder="0" allowfullscreen></iframe>
+      <div id="lyrics" style="margin-top:20px; background:#222; padding:15px; border-radius:12px; text-align:left;"></div>
+    </div>
+
+    <!-- Hot Songs -->
+    <h2>🔥 Hot Songs Right Now</h2>
+    <div id="hotSongsGrid" class="grid"></div>
+
+    <br><br>
+    <button onclick="refreshContent()" style="padding:14px 32px; font-size:1.1rem; background:#1db954; color:black; border:none; border-radius:50px; cursor:pointer; display:block; margin:0 auto;">
+      🔄 Refresh Hot List
+    </button>
+  </div>
+
+  <script>
+    const hotSongs = [
+      {song: "Choosin' Texas", artist: "Ella Langley", img: "https://picsum.photos/id/1015/600/600"},
+      {song: "Die With A Smile", artist: "Lady Gaga & Bruno Mars", img: "https://picsum.photos/id/201/600/600"},
+      {song: "Birds of a Feather", artist: "Billie Eilish", img: "https://picsum.photos/id/251/600/600"},
+      {song: "Good Luck, Babe!", artist: "Chappell Roan", img: "https://picsum.photos/id/301/600/600"},
+      {song: "Espresso", artist: "Sabrina Carpenter", img: "https://picsum.photos/id/401/600/600"}
+    ];
+
+    function searchAndPlay() {
+      const song = document.getElementById('song').value.trim();
+      const artist = document.getElementById('artist').value.trim();
+      if (!song || !artist) return alert("Please enter song and artist name");
+      playSong(song, artist);
+    }
+
+    function playSong(song, artist) {
+      const np = document.getElementById('nowPlaying');
+      np.style.display = 'block';
+
+      document.getElementById('playingTitle').textContent = `${song} - ${artist}`;
+
+      // Artist picture
+      const randomId = Math.floor(Math.random() * 500) + 10;
+      document.getElementById('artistPic').src = `https://picsum.photos/id/${randomId}/600/600`;
+
+      // Play song
+      const query = encodeURIComponent(`${song} ${artist} official audio`);
+      document.getElementById('player').src = `https://www.youtube.com/embed/results?search_query=${query}&autoplay=1`;
+
+      // Lyrics placeholder
+      document.getElementById('lyrics').innerHTML = `<strong>♪ ${song} ♪</strong><br><br>Hot lyrics would show here... 🔥`;
+    }
+
+    function loadHotSongs() {
+      const grid = document.getElementById('hotSongsGrid');
+      grid.innerHTML = '';
+      hotSongs.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <img src="${item.img}" alt="${item.song}">
+          <div class="card-info">
+            <strong>${item.song}</strong><br>
+            <small>${item.artist}</small>
+          </div>
+        `;
+        card.onclick = () => playSong(item.song, item.artist);
+        grid.appendChild(card);
+      });
+    }
+
+    function refreshContent() {
+      loadHotSongs();
+      alert("Hot songs updated! 🔥");
+    }
+
+    // Initialize
+    window.onload = loadHotSongs;
+  </script>
+</body>
+</html>
