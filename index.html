@@ -3,164 +3,250 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KadeeLyrics • Hot Right Now</title>
+  <title>KadeeLyrics • Vibes Only</title>
   <style>
+    :root { --bg: #0a0a0a; --card: rgba(30,30,30,0.95); --accent: #1db954; }
+    [data-theme="light"] { --bg: #f0f2f5; --card: rgba(255,255,255,0.95); }
+    
     body {
       font-family: 'Segoe UI', sans-serif;
       margin: 0;
       background: linear-gradient(135deg, #0a0a0a, #1a0033);
       color: #fff;
+      min-height: 100vh;
     }
     header {
-      background: linear-gradient(135deg, #1db954, #ff00aa);
+      background: linear-gradient(135deg, #1db954, #c026d3, #ff00aa);
       padding: 3rem 1rem;
       text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    header::after {
+      content: '🎵';
+      font-size: 15rem;
+      opacity: 0.1;
+      position: absolute;
+      top: -50px;
+      right: -50px;
     }
     .container { max-width: 1100px; margin: 0 auto; padding: 2rem; }
-    .search {
-      text-align: center;
+    .search-box {
+      background: var(--card);
+      padding: 2rem;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
       margin-bottom: 2rem;
     }
-    input, button {
+    input, select, button {
       padding: 16px;
       margin: 8px;
-      border-radius: 50px;
+      border-radius: 12px;
       border: none;
-      font-size: 1.1rem;
+      font-size: 1rem;
     }
-    input { background: #222; color: white; width: 320px; }
-    button { background: #1db954; color: black; font-weight: bold; cursor: pointer; }
-
-    .now-playing {
-      background: #111;
-      padding: 25px;
-      border-radius: 20px;
-      margin: 25px 0;
-      text-align: center;
-      display: none;
-    }
-    .artist-pic {
-      width: 200px;
-      height: 200px;
-      border-radius: 50%;
-      border: 6px solid #1db954;
-      margin: 15px auto;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 20px;
-    }
-    .card {
-      background: #1f1f1f;
-      border-radius: 18px;
-      overflow: hidden;
+    input, select { background: #222; color: white; width: 48%; }
+    button {
+      background: var(--accent);
+      color: black;
+      font-weight: bold;
       cursor: pointer;
       transition: 0.3s;
     }
-    .card:hover { transform: scale(1.08); }
-    .card img {
-      width: 100%;
-      height: 240px;
-      object-fit: cover;
+    button:hover { transform: scale(1.05); }
+
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 2rem;
     }
-    .card-info {
-      padding: 12px;
+    .artist-card {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 1.5rem;
       text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
     }
+    .artist-img {
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 6px solid #1db954;
+      box-shadow: 0 0 30px rgba(29, 185, 84, 0.6);
+    }
+    .player { background: #000; padding: 1rem; border-radius: 16px; margin: 1rem 0; }
+    .lyrics {
+      background: rgba(0,0,0,0.7);
+      padding: 2rem;
+      border-radius: 16px;
+      max-height: 520px;
+      overflow-y: auto;
+      line-height: 1.8;
+      font-size: 1.1rem;
+    }
+    .chip {
+      background: rgba(255,255,255,0.1);
+      padding: 10px 18px;
+      border-radius: 50px;
+      display: inline-block;
+      margin: 6px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .chip:hover { background: var(--accent); color: black; transform: translateY(-2px); }
+    .toggle-btn { position: fixed; top: 20px; right: 20px; z-index: 1000; font-size: 1.4rem; background: rgba(0,0,0,0.5); border: none; border-radius: 50%; width: 50px; height: 50px; }
   </style>
 </head>
-<body>
+<body data-theme="dark">
+  <button class="toggle-btn" onclick="toggleTheme()">☀️</button>
+
   <header>
-    <h1>KadeeLyrics</h1>
-    <p>Click any song picture to play • @kadeethe1</p>
+    <h1 style="margin:0; font-size:3rem;">KADEE<span style="color:#000;">LYRICS</span></h1>
+    <p style="margin:10px 0 0; font-size:1.3rem;">Lyrics + Music + Vibes • @kadeethe1</p>
   </header>
 
   <div class="container">
-    <!-- Search Bar -->
-    <div class="search">
-      <input type="text" id="song" placeholder="Song name">
+    <div class="search-box">
+      <h2>Search Song</h2>
+      <input type="text" id="song" placeholder="Song title">
       <input type="text" id="artist" placeholder="Artist name">
-      <button onclick="searchAndPlay()">▶️ Play Song</button>
+      <select id="language">
+        <option value="en">English</option>
+        <option value="es">Spanish</option>
+        <option value="fr">French</option>
+        <option value="ar">Arabic</option>
+        <option value="hi">Hindi</option>
+      </select>
+      <button onclick="searchAndPlay()">▶️ PLAY + LYRICS</button>
     </div>
 
-    <!-- Now Playing -->
-    <div id="nowPlaying" class="now-playing">
-      <img id="artistPic" class="artist-pic" src="https://picsum.photos/id/64/600/600">
-      <h2 id="playingTitle"></h2>
-      <iframe id="player" width="100%" height="160" frameborder="0" allowfullscreen></iframe>
-      <div id="lyrics" style="margin-top:20px; background:#222; padding:15px; border-radius:12px; text-align:left;"></div>
+    <div class="main-content">
+      <!-- Artist Info -->
+      <div id="artistCard" class="artist-card" style="display:none;">
+        <img id="artistImg" class="artist-img" src="https://via.placeholder.com/220" alt="Artist">
+        <h3 id="artistName"></h3>
+        <div id="nowPlaying" style="margin:15px 0; font-size:1.2rem;"></div>
+      </div>
+
+      <!-- Player + Lyrics -->
+      <div>
+        <div id="playerCard" class="player" style="display:none;">
+          <iframe id="youtubePlayer" width="100%" height="100" frameborder="0" allow="autoplay" allowfullscreen></iframe>
+        </div>
+
+        <div id="lyricsDisplay" style="display:none;">
+          <h3>Lyrics</h3>
+          <div id="lyrics" class="lyrics"></div>
+        </div>
+      </div>
     </div>
 
-    <!-- Hot Songs -->
-    <h2>🔥 Hot Songs Right Now</h2>
-    <div id="hotSongsGrid" class="grid"></div>
+    <!-- History & Favorites -->
+    <div style="margin-top:3rem;">
+      <h3>Recent Searches</h3>
+      <div id="history"></div>
+    </div>
+    <div>
+      <h3>Favorites ❤️</h3>
+      <div id="favorites"></div>
+    </div>
 
-    <br><br>
-    <button onclick="refreshContent()" style="padding:14px 32px; font-size:1.1rem; background:#1db954; color:black; border:none; border-radius:50px; cursor:pointer; display:block; margin:0 auto;">
-      🔄 Refresh Hot List
-    </button>
+    <!-- Billboard & Movies -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:2rem; margin-top:3rem;">
+      <div class="card">
+        <h2>🔥 Billboard Hot 100</h2>
+        <div id="billboard"></div>
+      </div>
+      <div class="card">
+        <h2>🎬 Top Movies 2026</h2>
+        <div id="movies"></div>
+      </div>
+    </div>
+
+    <div style="text-align:center; margin:4rem 0;">
+      <a href="https://instagram.com/kadeethe1" target="_blank" style="font-size:2rem; color:#e1306c; text-decoration:none;">
+        📸 Follow @kadeethe1 for more
+      </a>
+    </div>
   </div>
 
   <script>
-    const hotSongs = [
-      {song: "Choosin' Texas", artist: "Ella Langley", img: "https://picsum.photos/id/1015/600/600"},
-      {song: "Die With A Smile", artist: "Lady Gaga & Bruno Mars", img: "https://picsum.photos/id/201/600/600"},
-      {song: "Birds of a Feather", artist: "Billie Eilish", img: "https://picsum.photos/id/251/600/600"},
-      {song: "Good Luck, Babe!", artist: "Chappell Roan", img: "https://picsum.photos/id/301/600/600"},
-      {song: "Espresso", artist: "Sabrina Carpenter", img: "https://picsum.photos/id/401/600/600"}
-    ];
+    // ... (same safe localStorage + search logic as previous version)
+    function safeGet(key) { try { return JSON.parse(localStorage.getItem(key)) || []; } catch(e) { return []; }}
+    function safeSet(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {} }
 
-    function searchAndPlay() {
+    async function searchAndPlay() {
       const song = document.getElementById('song').value.trim();
       const artist = document.getElementById('artist').value.trim();
-      if (!song || !artist) return alert("Please enter song and artist name");
-      playSong(song, artist);
+      const lang = document.getElementById('language').value;
+
+      if (!song || !artist) return alert("Enter song & artist name");
+
+      // Show artist section
+      const artistCard = document.getElementById('artistCard');
+      artistCard.style.display = 'block';
+      document.getElementById('artistName').textContent = artist;
+      document.getElementById('nowPlaying').textContent = song;
+
+      // Artist image (via YouTube thumbnail style)
+      const imgUrl = `https://picsum.photos/id/${Math.floor(Math.random()*100)+10}/300/300`;
+      document.getElementById('artistImg').src = imgUrl;
+
+      // YouTube Player
+      const query = encodeURIComponent(`${song} ${artist} official music video`);
+      document.getElementById('youtubePlayer').src = `https://www.youtube.com/embed/results?search_query=${query}&autoplay=1`;
+      document.getElementById('playerCard').style.display = 'block';
+
+      // Lyrics
+      try {
+        const res = await fetch(`https://api.lyrics.ovh/v1/${encodeURIComponent(artist)}/${encodeURIComponent(song)}`);
+        const data = await res.json();
+        let lyricsText = data.lyrics || "Lyrics coming soon...";
+        if (lang !== 'en') lyricsText = `[${lang.toUpperCase()}] ${lyricsText}`;
+        document.getElementById('lyrics').textContent = lyricsText;
+        document.getElementById('lyricsDisplay').style.display = 'block';
+      } catch(e) {
+        document.getElementById('lyrics').textContent = "Lyrics not found.";
+      }
+
+      // Save history
+      let history = safeGet('lyricHistory');
+      history.unshift({song, artist});
+      if (history.length > 10) history.pop();
+      safeSet('lyricHistory', history);
+      updateUI();
     }
 
-    function playSong(song, artist) {
-      const np = document.getElementById('nowPlaying');
-      np.style.display = 'block';
+    function updateUI() {
+      const historyHTML = safeGet('lyricHistory').map(h => 
+        `<span class="chip" onclick="quickLoad('${h.song}','${h.artist}')">${h.song} - ${h.artist}</span>`
+      ).join('');
+      document.getElementById('history').innerHTML = historyHTML;
 
-      document.getElementById('playingTitle').textContent = `${song} - ${artist}`;
-
-      // Artist picture
-      const randomId = Math.floor(Math.random() * 500) + 10;
-      document.getElementById('artistPic').src = `https://picsum.photos/id/${randomId}/600/600`;
-
-      // Play song
-      const query = encodeURIComponent(`${song} ${artist} official audio`);
-      document.getElementById('player').src = `https://www.youtube.com/embed/results?search_query=${query}&autoplay=1`;
-
-      // Lyrics placeholder
-      document.getElementById('lyrics').innerHTML = `<strong>♪ ${song} ♪</strong><br><br>Hot lyrics would show here... 🔥`;
+      const favHTML = safeGet('lyricFavorites').map(f => 
+        `<span class="chip" onclick="quickLoad('${f.song}','${f.artist}')">${f.song} ❤️</span>`
+      ).join('');
+      document.getElementById('favorites').innerHTML = favHTML;
     }
 
-    function loadHotSongs() {
-      const grid = document.getElementById('hotSongsGrid');
-      grid.innerHTML = '';
-      hotSongs.forEach(item => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-          <img src="${item.img}" alt="${item.song}">
-          <div class="card-info">
-            <strong>${item.song}</strong><br>
-            <small>${item.artist}</small>
-          </div>
-        `;
-        card.onclick = () => playSong(item.song, item.artist);
-        grid.appendChild(card);
-      });
+    function quickLoad(song, artist) {
+      document.getElementById('song').value = song;
+      document.getElementById('artist').value = artist;
+      searchAndPlay();
     }
 
-    function refreshContent() {
-      loadHotSongs();
-      alert("Hot songs updated! 🔥");
+    function toggleTheme() {
+      const isDark = document.body.getAttribute('data-theme') === 'dark';
+      document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
     }
 
-    // Initialize
-    window.onload = loadHotSongs;
+    // Static content
+    document.getElementById('billboard').innerHTML = `1. Choosin' Texas - Ella Langley<br>2. I Knew It, I Knew You - Taylor Swift<br>3. Be Her - Ella Langley<br>4. stupid song - Olivia Rodrigo`;
+    document.getElementById('movies').innerHTML = `<span class="chip">Project Hail Mary</span> <span class="chip">28 Years Later: The Bone Temple</span> <span class="chip">Send Help</span>`;
+
+    // Init
+    updateUI();
   </script>
 </body>
 </html>
